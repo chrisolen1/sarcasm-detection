@@ -1,0 +1,11 @@
+setuptools==45.1.0
+pandas==0.25.3
+tensorflow==2.0.0b1
+keras==2.3.0
+matplotlib
+jupyter
+matplotlib
+pyspark==2.4.4
+tini
+sockets
+

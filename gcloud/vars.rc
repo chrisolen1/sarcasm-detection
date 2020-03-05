@@ -1,0 +1,24 @@
+### Set up environmental variables ###
+
+export PROJECT_NAME=sarc-1234
+export CLUSTER_NAME=sarc-cluster
+export BUCKET_NAME=sarc-bucket
+export BUCKET_SA=sarc-bucket-sa
+export REGION=us-central1
+export ZONE=us-central1-a
+export MASTER_MCHN_TYPE=n1-highmem-2
+export NUM_MASTERS=1
+export WORKER_MCHN_TYPE=n1-highmem-2
+export NUM_WORKERS=3
+
+export PYTHON_VERSION=3.7
+export SPARK_VERSION=2.4.4
+export HADOOP_VERSION=2.7
+
+export SPARK_NAMESPACE=spark
+export DRIVER_POD_SA=driver-pod-sa
+export SPARK_DRIVER_SA=spark-driver-sa
+export DRIVER_IMAGE=gcr.io/sarc-1234/spark-v2.4.4-master:latest
+export WORKER_IMAGE=gcr.io/sarc-1234/spark-v2.4.4-worker:latest
+export DRIVER_NAME=spark-driver
+export DRIVER_PORT=29413
