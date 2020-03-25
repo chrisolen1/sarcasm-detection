@@ -74,46 +74,7 @@ def load_data(spark_context, bucket_name, dataset):
     
     return sarcastic, non_sarcastic, ratio
 
-def tokenize_sample(context):
-    
-    """
-    To be applied over Spark dataframe.
-    Takes a string and converts it to token IDs via bert_tokenizer,
-    adding the necessary beginning and end tokens
 
-    Returns: Array of bert token ids for each row of Spark dataframe (requires udf)
-    """
-    
-    tokenized = ["[CLS]"] + tokenizer.tokenize(context) + ["[SEP]"]
-    ids = tokenizer.convert_tokens_to_ids(tokenized)
-    
-    return ids
-
-def generate_epoch_df(sarcastic, non_sarcastic, ratio, n_epochs):
-    
-    """
-    Generates a Pandas dataframe of equal label distribution over which 
-    we can perform mini-batch gradient descent. Each generated df is
-    to be iterator over multiple times during training
-    """
-    number = 0
-    while number < n_epochs:
-        non_sarc_samp = non_sarcastic.sample(ratio) # making label dist equal
-        
-        # combine sampled non_sarcastic and whole sarcastic
-        epoch_df = sarcastic.union(non_sarc_samp)
-        
-        # tokenize context column via spark udf
-        tokenize_sample_udf = F.udf(tokenize_sample, ArrayType(IntegerType()))
-        epoch_df = epoch_df.withColumn("tokens", tokenize_sample_udf(epoch_df.context))
-        
-        # split into X and y numpy arrays
-        X = np.array(epoch_df.select('tokens').collect())
-        y = np.array(epoch_df.select('label').collect())
-        
-        # yield one call at a time
-        yield X, y
-        number += 1
 
 
 
