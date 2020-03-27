@@ -75,6 +75,132 @@ def load_data(spark_context, bucket_name, dataset):
     return sarcastic, non_sarcastic, ratio
 
 
+def pad(epoch_df, pad_by_batch=False):
+
+    """
+    Takes in a Spark dataframe
+    Returns: A list of token, label tuples ordered
+    by token sequence length
+    """
+    
+    # add sequence lengths
+    epoch_df = epoch_df.withColumn("sequence_length", F.size(epoch_df.tokens))
+        
+    # order by sequence length
+    epoch_df = epoch_df.orderBy("sequence_length", ascending=False)
+            
+    # drop sequence length column
+    epoch_df = epoch_df.drop("sequence_length")
+            
+    # convert to pandas
+    epoch_df = epoch_df.toPandas()
+
+    # convert to list of tuples
+    dflist = [(epoch_df['tokens'].iloc[i], epoch_df['labels'].iloc[i]) for i in range(len(epoch_df))]
+
+    if pad_by_batch==False:
+
+        # convert to tf dataset via tf generator
+        processed_dataset = tf.data.Dataset.from_generator(lambda: dflist, output_types=(tf.int32, tf.int32))
+
+        # call the generator where 'batch' size is just the length of the whole dataset. 
+        batched_dataset = processed_dataset.padded_batch(len(epoch_df), padded_shapes=((None,),()))
+
+        return batched_dataset
+
+    elif pad_by_batch==True:
+
+        # convert to tf dataset via tf generator
+        processed_dataset = tf.data.Dataset.from_generator(lambda: dflist, output_types=(tf.int32, tf.int32))
+
+        # call the generator where batch size is pre-determined
+        batched_dataset = processed_dataset.padded_batch(5, padded_shapes=((),(None,)))
+
+        return batched_dataset
+
+
+
+def pad_by_overall_length2(epoch_df):
+    
+    """
+    Takes in a Spark dataframe 
+    Returns: nparray padded by the longest sequence in the entire
+    dataset
+    """
+    
+    # Start with three empty lists and initialize var for max_seq_len
+    tokens, X, y = [], [], []
+    max_seq_len = 0
+    
+    # convert pandas
+    epoch_df = epoch_df.toPandas()
+    
+    # generator for iterating over df
+    for _, row in tqdm(epoch_df.iterrows()):
+        
+        # pull out raw tokens and label for each row
+        raw_tokens, label = epoch_df.iloc[_]['tokens'], epoch_df.iloc[_]['label']
+        
+        # update max sequence length var
+        max_seq_len = max(max_seq_len, len(raw_tokens))
+      
+        # append results as list to empty list
+        tokens.append(raw_tokens)
+        y.append(label)
+    
+    # convert response to nparray
+    y = np.array(y)
+
+    # for each of the raw tokens
+    for sample in tokens:
+        
+        # truncate sample list if for some reason max_seq_len is shorter than actual length 
+        sample = sample[:min(len(sample), max_seq_len - 2)]
+        
+        # add zeros to pad the elements if length of sample is less then max_seq_len
+        sample = sample + [0] * (max_seq_len - len(sample))
+        
+        # append result to empty list X
+        X.append(np.array(sample))
+    
+    # convert predictor to nparray
+    X = np.array(X)
+    
+    return X,y
+        
+def sort_by_comment_length(epoch_df, batch_size=16):
+    
+    """
+    Takes in a Spark dataframe
+    Returns: A list of token, label tuples ordered
+    by token sequence length
+    """
+    
+    # add sequence lengths
+    epoch_df = epoch_df.withColumn("sequence_length", F.size(epoch_df.tokens))
+        
+    # order by sequence length
+    epoch_df = epoch_df.orderBy("sequence_length", ascending=False)
+            
+    # drop sequence length column
+    epoch_df = epoch_df.drop("sequence_length")
+            
+    # convert pandas
+    epoch_df = epoch_df.toPandas()
+    
+    # convert to sorted list of tuples
+    sorted_tokens = [(epoch_df['tokens'].iloc[i], epoch_df['label'].iloc[i]) for i in range(len(epoch_df))]
+    
+    return sorted_tokens
+            
+
+
+
+        
+                
+    
+
+
 
 
 
