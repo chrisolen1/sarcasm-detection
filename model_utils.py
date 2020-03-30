@@ -18,7 +18,7 @@ import random
 import os
 from tqdm import tqdm
 
-def init_bert(bert_version="https://tfhub.dev/tensorflow/bert_en_wwm_cased_L-24_H-1024_A-16/1", trainable=True, do_lower_case=False):
+def init_bert(bert_version="https://tfhub.dev/tensorflow/bert_en_cased_L-12_H-768_A-12/1", trainable=True, do_lower_case=False):
 
 	"""
 	Load params and vocab from existing BERT model
@@ -75,7 +75,7 @@ def load_data(spark_context, bucket_name, dataset):
     return sarcastic, non_sarcastic, ratio
 
 
-def pad(sample_df, pad_by_batch=False, batch_size):
+def pad(sample_df, batch_size, pad_by_batch=False):
 
     """
     Takes in a Spark dataframe
