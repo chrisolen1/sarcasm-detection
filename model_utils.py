@@ -84,16 +84,16 @@ def pad(epoch_df, pad_by_batch=False):
     """
     
     # add sequence lengths
-    epoch_df = epoch_df.withColumn("sequence_length", F.size(epoch_df.tokens))
+    #epoch_df = epoch_df.withColumn("sequence_length", F.size(epoch_df.tokens))
         
     # order by sequence length
-    epoch_df = epoch_df.orderBy("sequence_length", ascending=False)
+    #epoch_df = epoch_df.orderBy("sequence_length", ascending=False)
             
     # drop sequence length column
-    epoch_df = epoch_df.drop("sequence_length")
+    #epoch_df = epoch_df.drop("sequence_length")
             
     # convert to pandas
-    epoch_df = epoch_df.toPandas()
+    #epoch_df = epoch_df.toPandas()
 
     # convert to list of tuples
     dflist = [(epoch_df['tokens'].iloc[i], epoch_df['labels'].iloc[i]) for i in range(len(epoch_df))]
@@ -104,9 +104,14 @@ def pad(epoch_df, pad_by_batch=False):
         processed_dataset = tf.data.Dataset.from_generator(lambda: dflist, output_types=(tf.int32, tf.int32))
 
         # call the generator where 'batch' size is just the length of the whole dataset. 
-        batched_dataset = processed_dataset.padded_batch(len(epoch_df), padded_shapes=((None,),()))
+        padded_dataset = processed_dataset.padded_batch(len(epoch_df), padded_shapes=((None,),()))
 
-        return batched_dataset
+        padded_tensor = next(iter(padded_dataset))
+        
+        labels = padded_tensor[1].numpy().reshape(-1,1)
+        padded_tokens = padded_tensor[0].numpy()
+
+        return padded_tokens, labels
 
     elif pad_by_batch==True:
 
@@ -114,10 +119,47 @@ def pad(epoch_df, pad_by_batch=False):
         processed_dataset = tf.data.Dataset.from_generator(lambda: dflist, output_types=(tf.int32, tf.int32))
 
         # call the generator where batch size is pre-determined
-        batched_dataset = processed_dataset.padded_batch(5, padded_shapes=((),(None,)))
+        padded_dataset = processed_dataset.padded_batch(5, padded_shapes=((),(None,)))
+        
+        iterator = padded_dataset.make_one_shot_iterator()
+        
+        padded_tensor = iterator.get_next()
 
-        return batched_dataset
+        labels = padded_tensor[1].numpy().reshape(-1,1)
+        padded_tokens = padded_tensor[0].numpy()
 
+        return padded_tokens, labels
+
+
+def input_mask(padded_tokens):
+
+    """
+    Returns a tensor mask where 1 represents real tokens and 
+    0 represents padded tokens in the token tensor
+    """
+
+    # convert non-paded values to one
+    input_mask = (padded_tokens != 0).astype(int)
+
+    # convert back to tf.tensor
+    #input_mask = tf.convert_to_tensor(input_mask, tf.int32)
+
+    return input_mask
+
+def segment_id(padded_tokens):
+
+    """
+    Returns a tensor mask of all 0's since this classification
+    task only involves one segment
+    """
+
+    # ensure all values are converted to 0
+    segment_id = (padded_tokens > 1000000000).astype(int)
+
+    # convert back to tf.tensor
+    #segment_id = tf.convert_to_tensor(segment_id, tf.int32)
+
+    return segment_id
 
 
 def pad_by_overall_length2(epoch_df):
@@ -167,6 +209,7 @@ def pad_by_overall_length2(epoch_df):
     X = np.array(X)
     
     return X,y
+
         
 def sort_by_comment_length(epoch_df, batch_size=16):
     
