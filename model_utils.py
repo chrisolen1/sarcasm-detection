@@ -89,7 +89,7 @@ def pad(sample_df, batch_size, pad_by_batch=False):
     """
     
     # add sequence lengths
-    sample_df = sample_df.withColumn("sequence_length", F.size(sample.tokens))
+    sample_df = sample_df.withColumn("sequence_length", F.size(sample_df.tokens))
         
     # order by sequence length
     sample_df = sample_df.orderBy("sequence_length", ascending=False)
@@ -101,7 +101,7 @@ def pad(sample_df, batch_size, pad_by_batch=False):
     sample_df = sample_df.toPandas()
 
     # convert to list of tuples
-    dflist = [(sample_df['tokens'].iloc[i], sample_df['labels'].iloc[i]) for i in range(len(sample_df))]
+    dflist = [(sample_df['tokens'].iloc[i], sample_df['label'].iloc[i]) for i in range(len(sample_df))]
 
     if pad_by_batch==False:
 
