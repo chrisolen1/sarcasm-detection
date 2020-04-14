@@ -24,12 +24,16 @@ I have yet to train for more than 30 minutes,but the model has so far achieved a
 
 ## To-Do List
 •Train for longer across more sample Spark dataframes
+
 •Try more complex BERT models
+
 •Unfreeze more/fewer BERT layers
+
 •Add additional LSTM and/or Attention layer on top
+
 •Re-label instances for which the model's prediction was the most uncertain
 
-
+## Citations
 
 <sup>1</sup> Mikhail Khodak and Nikunj Saunshi and Kiran Vodrahalli (2017). A Large Self-Annotated Corpus for Sarcasm, https://arxiv.org/abs/1704.05579.
 
