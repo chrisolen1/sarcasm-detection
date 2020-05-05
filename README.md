@@ -35,10 +35,10 @@ I have yet to train for more than 30 minutes,but the model has so far achieved a
 
 ## Citations
 
-<sup>1</sup> Mikhail Khodak and Nikunj Saunshi and Kiran Vodrahalli (2017). A Large Self-Annotated Corpus for Sarcasm, https://arxiv.org/abs/1704.05579.
+<sup>1</sup> Khodak, Mikhail, Saunshi, Nikunj & Vodrahalli, Kiran (2017). A Large Self-Annotated Corpus for Sarcasm, https://arxiv.org/abs/1704.05579.
 
 <sup>2</sup> https://nlp.cs.princeton.edu/SARC/1.0/main/
 
 <sup>3</sup> https://github.com/chrisolen1/spark-on-gcp
 
-<sup>4</sup> Devlin, Jacob and Chang, Ming-Wei and Lee, Kenton and Toutanova, Kristina (2018). BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding.
+<sup>4</sup> Devlin, Jacob, Chang, Ming-Wei, Lee, Kenton, & Toutanova, Kristina (2018). BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding.
